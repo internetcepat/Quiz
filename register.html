@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daftar</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Custom CSS -->
+  <style>
+  body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #e0e0e0; /* Softer background */
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    padding: 20px;
+    background-image: linear-gradient(45deg, #f9f9f9, #d0d0d0); /* Subtle gradient */
+}
+
+.login-container {
+    max-width: 400px;
+    width: 100%;
+    padding: 20px;
+    background-color: #ffffff; /* White background for the container */
+    border: 3px solid #ffcc00; /* Bright yellow border */
+    border-radius: 15px; /* More rounded corners */
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); /* Deeper shadow for depth */
+    position: relative; /* For pseudo-elements */
+}
+
+.login-container::before {
+    content: "";
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    right: -10px;
+    bottom: -10px;
+    background: rgba(255, 204, 0, 0.1); /* Yellow glow effect */
+    border-radius: 20px;
+    z-index: -1; /* Behind the container */
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 28px; /* Slightly larger font size */
+    color: #ff0000; /* Bright red color */
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); /* Soft text shadow */
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-control {
+    border-radius: 8px; /* Softer corners */
+    border: 2px solid #ffcc00; /* Bright yellow border */
+    padding: 12px; /* More padding */
+    width: 100%;
+    font-size: 16px; /* Increased font size */
+    transition: border-color 0.3s, box-shadow 0.3s; /* Add box-shadow on focus */
+}
+
+.form-control::placeholder {
+    color: #aaa; /* Placeholder color */
+}
+
+.form-control:focus {
+    border-color: #00b300; /* Green focus border */
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 179, 0, 0.5); /* Green glow on focus */
+}
+
+.btn-primary {
+    width: 100%;
+    padding: 12px; /* More padding for buttons */
+    background-color: #ffcc00; /* Bright yellow button */
+    border: none;
+    border-radius: 10px; /* Rounded corners */
+    cursor: pointer;
+    font-size: 18px; /* Larger font size */
+    color: #000; /* Black text */
+    transition: background-color 0.3s, transform 0.1s; /* Add transform for a pressed effect */
+}
+
+.btn-primary:hover {
+    background-color: #ff9900; /* Darker orange on hover */
+    transform: translateY(-2px); /* Lift effect on hover */
+}
+
+.text-center {
+    text-align: center;
+    margin-top: 15px;
+}
+
+.text-center a {
+    color: #007BFF; /* Link color */
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.2s, text-shadow 0.2s; /* Add text-shadow on hover */
+}
+
+.text-center a:hover {
+    text-decoration: underline;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); /* Soft shadow on hover */
+}
+
+.alert-container {
+    margin-top: 15px;
+}
+
+.alert {
+    display: none;
+    margin-top: 10px;
+    padding: 10px; /* Added padding for alerts */
+    border: 1px solid #ff0000; /* Red border for alerts */
+    background-color: #ffe6e6; /* Light red background for alerts */
+    color: #ff0000; /* Red text */
+    border-radius: 5px; /* Rounded corners for alerts */
+}
+
+#progress-container {
+    display: none;
+    width: 100%;
+    height: 8px; /* Increased height for visibility */
+    background-color: #d9d9d9; /* Light grey for progress bar background */
+    border-radius: 5px;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+#progress-bar {
+    height: 100%;
+    width: 0;
+    background-color: #00b300; /* Green progress bar */
+    transition: width 0.2s;
+}
+
+.google-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #ffffff; /* White button */
+    color: #333; /* Dark text */
+    border: 2px solid #ffcc00; /* Bright yellow border */
+    padding: 12px; /* More padding */
+    border-radius: 10px; /* Rounded corners */
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.1s; /* Add transform for a pressed effect */
+}
+
+.google-btn:hover {
+    background-color: #f0f0f0; /* Light grey on hover */
+    transform: translateY(-2px); /* Lift effect on hover */
+}
+
+.google-logo {
+    width: 24px; /* Slightly larger logo */
+    height: 24px;
+    margin-right: 8px;
+}
+  </style>
+</head>
+<body>
+  <div class="register-container">
+    <h1>Daftar Akun</h1>
+    <form>
+      <div class="form-group">
+        <label for="email">Email:</label>
+        <input type="email" id="email" class="form-control" placeholder="Masukkan email" required>
+      </div>
+      <div class="form-group">
+        <label for="password">Password:</label>
+        <input type="password" id="password" class="form-control" placeholder="Masukkan password" required>
+      </div>
+      <button type="button" class="btn btn-primary" onclick="register()">Daftar</button>
+      <div class="text-center mt-3">
+        <a href="index.html">Sudah punya akun? Login</a>
+      </div>
+    </form>
+  </div>
+
+  <!-- Firebase JS SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-auth.js"></script>
+  <script>
+    // Inisialisasi Firebase
+    var firebaseConfig = {
+      apiKey: "AIzaSyC6q-jTNQxXOPCaZczcpgRk4q8ftQ0-n3c",
+      authDomain: "internet-14942.firebaseapp.com",
+      projectId: "internet-14942",
+      storageBucket: "internet-14942.appspot.com",
+      messagingSenderId: "214259914034",
+      appId: "1:214259914034:web:de404cf9ee7b35b41b732b",
+      measurementId: "G-BX35S5MZJY"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    // Fungsi pendaftaran menggunakan email dan password
+    function register() {
+      var email = document.getElementById('email').value;
+      var password = document.getElementById('password').value;
+
+      firebase.auth().createUserWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          // Pendaftaran berhasil, arahkan ke halaman login
+          alert("Pendaftaran berhasil, silakan login.");
+          window.location.href = "index.html"; // Ganti dengan halaman login Anda
+        })
+        .catch((error) => {
+          alert("Pendaftaran gagal: " + error.message);
+        });
+    }
+  </script>
+</body>
+</html>

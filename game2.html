@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Permainan Memori</title>
+    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-firestore.js"></script>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    
+    <style>
+        body {
+    font-family: 'Press Start 2P', cursive; /* Font retro yang tetap cocok dengan tema */
+    background-color: #d5e1eb; /* Latar belakang biru muda khas Nintendo 3DS */
+    display: flex;
+    flex-direction: column; /* Flexbox untuk pengaturan kolom */
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Mengambil seluruh tinggi layar */
+    margin: 0;
+    color: #000000; /* Teks berwarna hitam */
+}
+
+h1 {
+    font-size: 36px; /* Ukuran font judul lebih besar */
+    margin-bottom: 20px; /* Ruang di bawah judul */
+    text-align: center; /* Rata tengah untuk judul */
+    color: #0a78d1; /* Warna biru khas Nintendo 3DS */
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3); /* Bayangan lembut di teks judul */
+}
+
+#game-board {
+    display: grid;
+    grid-template-columns: repeat(4, 90px); /* Grid dengan 4 kolom, sesuai ukuran kartu */
+    gap: 12px; /* Jarak antar kartu */
+    margin: 20px 0; /* Ruang di atas dan bawah papan permainan */
+}
+
+.card {
+    width: 90px; /* Lebar kartu */
+    height: 90px; /* Tinggi kartu */
+    background: linear-gradient(145deg, #f0f5fa, #c1c8d1); /* Gradasi lembut untuk kartu */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #0a78d1; /* Warna teks biru */
+    font-size: 26px; /* Ukuran font di dalam kartu */
+    font-weight: bold; /* Font tebal */
+    cursor: pointer; /* Menunjukkan bahwa kartu dapat diklik */
+    border: 2px solid #c1c8d1; /* Garis luar abu-abu lembut */
+    border-radius: 10px; /* Sudut melengkung besar untuk kartu */
+    transition: transform 0.2s, box-shadow 0.2s; /* Transisi halus */
+    box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.2); /* Bayangan halus untuk memberikan efek 3D */
+}
+
+.card:hover {
+    transform: translateY(-5px) scale(1.1); /* Efek hover yang lebih menonjol */
+    box-shadow: 6px 6px 12px rgba(0, 0, 0, 0.3); /* Bayangan lebih dalam saat hover */
+}
+
+.hidden {
+    background: linear-gradient(145deg, #99aab5, #c1c8d1); /* Gradasi abu-abu untuk kartu tersembunyi */
+    border: 2px solid #0a78d1; /* Border biru pada kartu tersembunyi */
+}
+
+#time-display {
+    font-size: 26px; /* Ukuran font untuk waktu */
+    margin-top: 10px; /* Ruang di atas waktu */
+    text-align: center; /* Rata tengah untuk waktu */
+    color: #ffcc00; /* Warna kuning khas untuk waktu */
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); /* Sedikit bayangan pada teks waktu */
+}
+
+#game-over {
+    display: none; /* Sembunyikan Game Over secara default */
+    text-align: center; /* Rata tengah teks */
+    position: absolute; /* Posisi absolut untuk penempatan */
+    top: 50%; /* Di tengah vertikal */
+    left: 50%; /* Di tengah horizontal */
+    transform: translate(-50%, -50%); /* Memindahkan ke tengah */
+    background: linear-gradient(145deg, #ff5555, #d14242); /* Latar belakang merah dengan gradasi */
+    border: 3px solid #ffffff; /* Garis putih di sekitar kotak Game Over */
+    padding: 20px; /* Ruang di dalam kotak */
+    color: #ffffff; /* Warna teks putih */
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5); /* Bayangan yang lebih dalam */
+    border-radius: 10px; /* Sudut melengkung besar untuk kotak */
+    font-size: 24px; /* Ukuran font dalam Game Over */
+}
+    </style>
+</head>
+
+<body>
+    <h1>Permainan Memori</h1>
+    <div id="game-board"></div>
+    <div id="status"></div>
+    <div id="timer"></div>
+
+    <div id="game-over">
+        <h2>Waktu Habis!</h2>
+        <p id="final-status"></p>
+        <button class="btn btn-primary" onclick="goToMain()">Kembali ke Game Area</button>
+    </div>
+
+    <script>
+        var firebaseConfig = {
+            apiKey: "AIzaSyC6q-jTNQxXOPCaZczcpgRk4q8ftQ0-n3c",
+            authDomain: "internet-14942.firebaseapp.com",
+            projectId: "internet-14942",
+            storageBucket: "internet-14942.appspot.com",
+            messagingSenderId: "214259914034",
+            appId: "1:214259914034:web:de404cf9ee7b35b41b732b",
+            measurementId: "G-BX35S5MZJY"
+        };
+        firebase.initializeApp(firebaseConfig);
+        var db = firebase.firestore();
+
+        // Ikon buah untuk permainan
+        const fruits = ['🍎', '🍌', '🍇', '🍊', '🍉', '🍓', '🍍', '🍒'];
+        let cards = [...fruits, ...fruits]; // Duplikasi ikon buah untuk menciptakan pasangan
+        let selectedCards = [];
+        let matchedCards = [];
+        let moves = 0;
+        let saldo = 0;
+        let timer;
+        const timeLimit = 5; // Batas waktu dalam detik
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function startTimer() {
+            let timeLeft = timeLimit;
+            timer = setInterval(() => {
+                document.getElementById('timer').textContent = "Waktu: " + timeLeft + " detik";
+                timeLeft--;
+
+                if (timeLeft < 0) {
+                    clearInterval(timer);
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        function createBoard() {
+            shuffle(cards);
+            const board = document.getElementById('game-board');
+            board.innerHTML = '';
+            cards.forEach((card, index) => {
+                const cardElement = document.createElement('div');
+                cardElement.classList.add('card');
+                cardElement.setAttribute('data-card', card);
+                cardElement.setAttribute('data-index', index);
+                cardElement.addEventListener('click', onCardClick);
+                board.appendChild(cardElement);
+            });
+        }
+
+        function onCardClick(e) {
+            const card = e.target;
+            if (selectedCards.length < 2 && !matchedCards.includes(card)) {
+                card.textContent = card.getAttribute('data-card');
+                selectedCards.push(card);
+                if (selectedCards.length === 2) {
+                    moves++;
+                    setTimeout(checkMatch, 1000);
+                }
+            }
+        }
+
+        function checkMatch() {
+            const [firstCard, secondCard] = selectedCards;
+            if (firstCard.getAttribute('data-card') === secondCard.getAttribute('data-card')) {
+                matchedCards.push(firstCard, secondCard);
+                firstCard.classList.add('hidden');
+                secondCard.classList.add('hidden');
+                saldo += 100; // Tambahkan 100 ke saldo setiap kali cocok
+                document.getElementById('status').textContent = "Selamat! Anda cocok! Saldo Anda: Rp " + saldo;
+                selectedCards = [];
+                checkWin();
+                updateSaldo();
+            } else {
+                firstCard.textContent = '';
+                secondCard.textContent = '';
+                selectedCards = [];
+            }
+        }
+
+        function checkWin() {
+            if (matchedCards.length === cards.length) {
+                clearInterval(timer); // Hentikan timer
+                document.getElementById('status').textContent = "Selamat! Anda menang dengan " + moves + " langkah. Saldo akhir Anda: Rp " + saldo;
+            }
+        }
+
+        function endGame() {
+            document.getElementById('final-status').textContent = "Anda bermain dengan " + moves + " langkah. Saldo akhir Anda: Rp " + saldo;
+            document.getElementById('game-over').style.display = 'block'; // Tampilkan layar game over
+            clearInterval(timer); // Hentikan timer
+        }
+
+        function goToMain() {
+            window.location.href = "main.html"; // Arahkan ke main.html
+        }
+
+        function updateSaldo() {
+            const user = firebase.auth().currentUser;
+            if (user) {
+                const userId = user.uid;
+                const saldoRef = db.collection("users").doc(userId);
+                saldoRef.update({
+                    saldo: firebase.firestore.FieldValue.increment(100) // Ubah sesuai dengan jumlah saldo yang ingin ditambahkan
+                }).then(() => {
+                    console.log("Saldo berhasil diperbarui.");
+                }).catch((error) => {
+                    console.error("Error memperbarui saldo: ", error);
+                });
+            }
+        }
+
+        firebase.auth().onAuthStateChanged(function(user) {
+            if (!user) {
+                window.location.href = "index.html"; // Redirect jika belum login
+            } else {
+                createBoard(); // Buat papan permainan untuk pengguna yang sudah login
+                startTimer(); // Mulai timer
+            }
+        });
+        
+        window.onload = function() {
+          var gridId = 'game2'; // Ubah ini sesuai halaman (game1, game2, atau game3)
+        
+          // Set ulang waktu saat halaman grid dibuka
+          var newEndTime = new Date().getTime() + 30 * 1000; // Set durasi countdown baru (misalnya 30 detik)
+          localStorage.setItem(gridId + 'EndTime', newEndTime);
+          localStorage.setItem(gridId + 'Expired', 'false'); // Set expired kembali ke false
+        
+          // Mulai countdown lagi
+          initializeCountdown(gridId, newEndTime);
+        }
+    </script>
+</body>
+</html>

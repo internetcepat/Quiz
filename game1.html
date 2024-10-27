@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Shooter Fly Game</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+      <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-app.js"></script>
+      <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-auth.js"></script>
+      <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-firestore.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+        }
+        canvas {
+            display: block;
+            background-color: #87CEEB;
+        }
+        #score, #lives {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 20px;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        #lives {
+            left: auto;
+            right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="score">Score: 0</div>
+    <div id="lives">Lives: 3</div>
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- Audio files -->
+    <audio id="backgroundMusic" src="https://cdn.pixabay.com/download/audio/2022/03/10/audio_bf436b6b33.mp3?filename=the-jazz-piano-1582.mp3" loop></audio>
+    <audio id="shootSound" src="https://freesound.org/data/previews/341/341695_5260870-lq.mp3"></audio>
+    <audio id="explosionSound" src="https://freesound.org/data/previews/348/348859_6248470-lq.mp3"></audio>
+
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const backgroundMusic = document.getElementById("backgroundMusic");
+        const shootSound = document.getElementById("shootSound");
+        const explosionSound = document.getElementById("explosionSound");
+
+        backgroundMusic.volume = 0.3;
+
+        // Mulai game setelah interaksi pengguna
+        function startGame() {
+            backgroundMusic.play();
+            update(); // Mulai loop game
+            canvas.removeEventListener('click', startGame);
+        }
+
+        canvas.addEventListener('click', startGame);
+
+        // Variabel game
+        let score = 0;
+        let lives = 3;
+        let enemySpeed = 2;
+        const enemySpeedIncreaseInterval = 10000;
+
+        const scoreDisplay = document.getElementById('score');
+        const livesDisplay = document.getElementById('lives');
+
+        const player = {
+            x: canvas.width / 2 - 16,
+            y: canvas.height - 80,
+            width: 32,
+            height: 32,
+            speed: 7,
+        };
+
+        const bullets = [];
+        const bulletInterval = 300;
+        let lastBulletTime = 0;
+
+        const enemies = [];
+        const explosions = [];
+
+        let isTouching = false;
+
+        // Load images
+        const backgroundImg = new Image();
+        backgroundImg.src = "https://i.ibb.co.com/GsjmQ8X/1729072414777.jpg";
+
+        const playerImg = new Image();
+        playerImg.src = "https://img.icons8.com/external-flat-juicy-fish/60/external-jet-aerospace-engineering-flat-flat-juicy-fish-2.png";
+
+        const enemyImg = new Image();
+        enemyImg.src = "https://img.icons8.com/doodle/48/fighter-jet.png";
+
+        const explosionImg = new Image();
+        explosionImg.src = "https://img.icons8.com/emoji/48/collision.png";
+
+        let backgroundY = 0;
+        const backgroundSpeed = 2;
+
+        function playShootSound() {
+            shootSound.currentTime = 0;
+            shootSound.play();
+        }
+
+        function playExplosionSound() {
+            explosionSound.currentTime = 0;
+            explosionSound.play();
+        }
+
+        function drawPlayer() {
+            ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
+        }
+
+        function shoot() {
+            const currentTime = Date.now();
+            if (currentTime - lastBulletTime >= bulletInterval) {
+                bullets.push({
+                    x: player.x + player.width / 2 - 2.5,
+                    y: player.y,
+                    width: 5,
+                    height: 10,
+                    speed: 10
+                });
+                playShootSound();
+                lastBulletTime = currentTime;
+            }
+        }
+
+        function drawBullets() {
+            bullets.forEach((bullet, index) => {
+                bullet.y -= bullet.speed;
+                if (bullet.y < 0) bullets.splice(index, 1);
+                ctx.fillStyle = "#ffcc00";
+                ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
+            });
+        }
+
+        function drawBackground() {
+            ctx.drawImage(backgroundImg, 0, backgroundY, canvas.width, canvas.height);
+            ctx.drawImage(backgroundImg, 0, backgroundY - canvas.height, canvas.width, canvas.height);
+
+            backgroundY += backgroundSpeed;
+            if (backgroundY >= canvas.height) {
+                backgroundY = 0;
+            }
+        }
+
+        function createEnemy() {
+          const size = Math.random() * 30 + 20;
+          const x = Math.random() * (canvas.width - size);
+          const speedY = Math.random() * 3 + 1; // Variasi kecepatan vertikal
+          const speedX = (Math.random() - 0.5) * 2; // Variasi gerakan horizontal
+          enemies.push({ x, y: -size, width: size, height: size, speedY: speedY, speedX: speedX, directionX: Math.random() > 0.5 ? 1 : -1 });
+        }
+
+        function drawEnemies() {
+          enemies.forEach((enemy, index) => {
+            enemy.y += enemy.speedY;
+            enemy.x += enemy.speedX * enemy.directionX; // Gerakan ke samping
+        
+            // Batas gerakan horizontal
+            if (enemy.x <= 0 || enemy.x + enemy.width >= canvas.width) {
+              enemy.directionX *= -1; // Ubah arah saat menyentuh tepi
+            }
+        
+            if (enemy.y > canvas.height) enemies.splice(index, 1);
+        
+            ctx.save();
+            ctx.translate(enemy.x + enemy.width / 2, enemy.y + enemy.height / 2);
+            ctx.rotate(Math.PI / 2);
+            ctx.drawImage(enemyImg, -enemy.width / 2, -enemy.height / 2, enemy.width, enemy.height);
+            ctx.restore();
+          });
+        }
+        
+        
+        const enemyBullets = [];
+        const enemyShootInterval = 2000; // Setiap 2 detik musuh akan menembak
+        
+        function enemyShoot(enemy) {
+          enemyBullets.push({
+            x: enemy.x + enemy.width / 2 - 2.5,
+            y: enemy.y + enemy.height,
+            width: 5,
+            height: 10,
+            speed: 4
+          });
+        }
+        
+        function drawEnemyBullets() {
+          enemyBullets.forEach((bullet, index) => {
+            bullet.y += bullet.speed;
+            if (bullet.y > canvas.height) enemyBullets.splice(index, 1);
+            ctx.fillStyle = "red";
+            ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
+          });
+        }
+        
+        // Setiap musuh akan menembak setiap interval waktu
+        setInterval(() => {
+          enemies.forEach(enemy => {
+            if (enemy.y > 0 && enemy.y < canvas.height) {
+              enemyShoot(enemy);
+            }
+          });
+        }, enemyShootInterval);
+
+        function movePlayerTo(x, y) {
+            player.x = x - player.width / 2;
+            if (player.x < 0) player.x = 0;
+            if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
+            player.y = y - player.height / 2 - 20;
+            if (player.y < 0) player.y = 0;
+            if (player.y + player.height > canvas.height) player.y = canvas.height - player.height;
+            shoot();
+        }
+
+        canvas.addEventListener('touchstart', function(e) {
+            isTouching = true;
+            const touch = e.touches[0];
+            movePlayerTo(touch.clientX, touch.clientY);
+        });
+
+        canvas.addEventListener('touchmove', function(e) {
+            if (isTouching) {
+                const touch = e.touches[0];
+                movePlayerTo(touch.clientX, touch.clientY);
+            }
+        });
+
+        canvas.addEventListener('touchend', function() {
+            isTouching = false;
+        });
+
+        function drawExplosions() {
+            explosions.forEach((explosion, index) => {
+                ctx.drawImage(explosionImg, explosion.x, explosion.y, explosion.width, explosion.height);
+                explosion.lifespan--;
+                if (explosion.lifespan <= 0) explosions.splice(index, 1);
+            });
+        }
+
+function detectCollisions() {
+          enemies.forEach((enemy, enemyIndex) => {
+            bullets.forEach((bullet, bulletIndex) => {
+              if (
+                bullet.x < enemy.x + enemy.width &&
+                bullet.x + bullet.width > enemy.x &&
+                bullet.y < enemy.y + enemy.height &&
+                bullet.y + bullet.height > enemy.y
+              ) {
+                // Ledakan saat musuh tertembak
+                explosions.push({ x: enemy.x, y: enemy.y, width: 32, height: 32, lifespan: 10 });
+                playExplosionSound();
+                enemies.splice(enemyIndex, 1);
+                bullets.splice(bulletIndex, 1);
+                score += 10;
+                scoreDisplay.textContent = "Score: " + score;
+        
+                // Tambahkan saldo berdasarkan skor
+                updateSaldo(10); // Misal setiap 10 poin skor, saldo bertambah 10
+              }
+            });
+        
+            if (
+              enemy.x < player.x + player.width &&
+              enemy.x + enemy.width > player.x &&
+              enemy.y < player.y + player.height &&
+              enemy.y + enemy.height > player.y
+            ) {
+              // Ledakan saat musuh bertabrakan dengan pemain
+              playExplosionSound();
+              explosions.push({ x: enemy.x, y: enemy.y, width: 32, height: 32, lifespan: 10 });
+              enemies.splice(enemyIndex, 1);
+              lives--;
+              livesDisplay.textContent = "Lives: " + lives;
+              if (lives <= 0) {
+                backgroundMusic.pause(); // Hentikan musik latar
+                window.location.href = 'main.html'; // Arahkan ke halaman main.html
+              }
+            }
+          });
+        
+          // Deteksi peluru musuh yang mengenai pemain
+          enemyBullets.forEach((bullet, bulletIndex) => {
+            if (
+              bullet.x < player.x + player.width &&
+              bullet.x + bullet.width > player.x &&
+              bullet.y < player.y + player.height &&
+              bullet.y + bullet.height > player.y
+            ) {
+              playExplosionSound();
+              explosions.push({ x: player.x, y: player.y, width: 32, height: 32, lifespan: 10 });
+              enemyBullets.splice(bulletIndex, 1);
+              lives--;
+              livesDisplay.textContent = "Lives: " + lives;
+              if (lives <= 0) {
+                backgroundMusic.pause(); // Hentikan musik latar
+                window.location.href = 'main.html'; // Arahkan ke halaman main.html
+              }
+            }
+          });
+        }
+
+        function increaseEnemySpeed() {
+            enemySpeed += 0.5;
+        }
+
+        function update() {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          drawBackground();
+          drawPlayer();
+          drawBullets();
+          drawEnemies();
+          drawEnemyBullets();
+          drawExplosions();
+          detectCollisions();
+        
+          if (lives > 0) {
+            requestAnimationFrame(update);
+          }
+        }
+
+        setInterval(createEnemy, 1000);
+        setInterval(increaseEnemySpeed, enemySpeedIncreaseInterval);
+        
+        
+        // Firebase
+        var firebaseConfig = {
+          apiKey: "AIzaSyC6q-jTNQxXOPCaZczcpgRk4q8ftQ0-n3c",
+          authDomain: "internet-14942.firebaseapp.com",
+          projectId: "internet-14942",
+          storageBucket: "internet-14942.appspot.com",
+          messagingSenderId: "214259914034",
+          appId: "1:214259914034:web:de404cf9ee7b35b41b732b",
+          measurementId: "G-BX35S5MZJY"
+        };
+        firebase.initializeApp(firebaseConfig);
+        
+        var db = firebase.firestore();
+        
+        // Fungsi untuk memperbarui saldo
+        function updateSaldo(tambahSaldo) {
+          firebase.auth().onAuthStateChanged(function(user) {
+            if (user) {
+              var userId = user.uid;
+              var saldoRef = db.collection("users").doc(userId);
+        
+              // Ambil saldo saat ini dan tambahkan
+              saldoRef.get().then(function(doc) {
+                if (doc.exists) {
+                  var saldoSekarang = doc.data().saldo;
+                  saldoRef.update({
+                    saldo: firebase.firestore.FieldValue.increment(tambahSaldo)
+                  }).then(function() {
+                    console.log("Saldo berhasil diperbarui!");
+                  }).catch(function(error) {
+                    console.error("Kesalahan saat memperbarui saldo: ", error);
+                  });
+                }
+              });
+            }
+          });
+        }
+        
+        
+        window.onload = function() {
+          var gridId = 'game1'; // Ubah ini sesuai halaman (game1, game2, atau game3)
+        
+          // Set ulang waktu saat halaman grid dibuka
+          var newEndTime = new Date().getTime() + 30 * 1000; // Set durasi countdown baru (misalnya 30 detik)
+          localStorage.setItem(gridId + 'EndTime', newEndTime);
+          localStorage.setItem(gridId + 'Expired', 'false'); // Set expired kembali ke false
+        
+          // Mulai countdown lagi
+          initializeCountdown(gridId, newEndTime);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Main</title>
+  
+  <!-- Bootstrap CSS -->
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- Bootstrap Icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.8.1/font/bootstrap-icons.min.css" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <!-- Custom CSS -->
+  <style>
+    body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #e6e6e6; /* Softer background color */
+    margin: 0; /* Remove default margin */
+}
+
+/* Navbar Styles */
+.navbar {
+    background-color: #ffcc00; /* Bright yellow background */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); /* Shadow for depth */
+}
+
+.navbar-brand {
+    color: #ff0000 !important; /* Bright red text */
+    font-size: 26px; /* Larger font size */
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3); /* Soft text shadow */
+}
+
+.navbar-nav .nav-link {
+    color: #333 !important; /* Darker link color for contrast */
+    font-size: 18px; /* Larger font size */
+    padding: 12px 20px; /* Increased padding for links */
+    border-radius: 10px; /* Rounded corners */
+    transition: background-color 0.3s, color 0.3s; /* Smooth transition */
+}
+
+.navbar-nav .nav-link:hover {
+    background-color: #ff9900; /* Darker orange on hover */
+    color: #fff; /* White text on hover */
+}
+
+/* Container Styles */
+.container {
+    margin-top: 20px;
+    padding: 20px; /* Add padding */
+}
+
+/* Grid Container Styles */
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* Three-column layout */
+    gap: 20px; /* Space between grid items */
+}
+
+/* Grid Item Styles */
+.grid-item {
+    background-color: #ffffff; /* White background for grid items */
+    border: 2px solid #ffcc00; /* Bright yellow border */
+    border-radius: 12px; /* Softer corners */
+    text-align: center;
+    padding: 20px;
+    transition: transform 0.2s, box-shadow 0.2s; /* Scale and shadow on hover */
+    position: relative; /* Position relative for pseudo-elements */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Soft shadow */
+}
+
+.grid-item.disabled {
+    pointer-events: none; /* Disable interaction */
+    background-color: #f8d7da; /* Light red background for disabled items */
+}
+
+/* Hover Effects */
+.grid-item:hover {
+    transform: translateY(-3px) scale(1.05); /* Lift and scale effect on hover */
+    cursor: pointer; /* Change cursor to pointer */
+}
+
+/* Image Styles */
+.grid-item img {
+    max-width: 90%; /* Ensure images are responsive */
+    height: auto;
+    border-radius: 8px; /* Round corners for images */
+    margin-bottom: 10px; /* Space below images */
+}
+
+/* Countdown Styles */
+.countdown {
+    font-size: 28px; /* Larger font size */
+    color: #ff0000; /* Bright red color */
+    margin-top: 10px; /* Space above countdown */
+}
+
+/* Footer Styles */
+footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background-color: #ffcc00; /* Bright yellow footer */
+    color: #333; /* Dark text color */
+    text-align: center;
+    padding: 15px 0; /* Increased padding */
+    box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.3); /* Shadow for depth */
+}
+
+.footer-menu {
+    display: flex;
+    justify-content: space-around; /* Space links evenly */
+}
+
+.footer-menu a {
+    color: #333; /* Dark text color for links */
+    text-decoration: none; /* Remove underline */
+    font-size: 18px; /* Font size */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: color 0.3s; /* Smooth color transition */
+}
+
+.footer-menu a:hover {
+    color: #ff0000; /* Bright red on hover */
+}
+
+.footer-menu i {
+    font-size: 28px; /* Larger icon size */
+    transition: transform 0.3s; /* Add transform for hover effect */
+}
+
+.footer-menu a:hover i {
+    transform: scale(1.9); /* Scale up on hover */
+}
+
+    /* Tambahan untuk membuat link tidak aktif dan warna hitam */
+    .disabled-link {
+        color: red !important; /* Warna hitam */
+        pointer-events: none; /* Nonaktifkan klik */
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg">
+    <a class="navbar-brand" href="#">Main</a>
+    <div class="collapse navbar-collapse">
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="beranda.html">Beranda</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="saldo.html">Saldo</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Konten Utama -->
+<div class="container">
+  <h1 class="text-center">Pilihan Permainan</h1>
+  <div id="saldoDisplay" class="text-center" style="font-size: 20px; margin-top: 20px;"></div> <!-- Menampilkan saldo -->
+  <div class="grid-container">
+    <div class="grid-item" id="game1" onclick="window.location.href='game1.html'">
+      <img src="https://via.placeholder.com/150" alt="Game 1">
+      <h3>Game 1</h3>
+      <p>Deskripsi singkat tentang Game 1.</p>
+      <div class="countdown" id="countdown1"></div>
+    </div>
+    <div class="grid-item" id="game2" onclick="window.location.href='game2.html'">
+      <img src="https://via.placeholder.com/150" alt="Game 2">
+      <h3>Game 2</h3>
+      <p>Deskripsi singkat tentang Game 2.</p>
+      <div class="countdown" id="countdown2"></div>
+    </div>
+    <div class="grid-item" id="game3" onclick="window.location.href='game3.html'">
+      <img src="https://via.placeholder.com/150" alt="Game 3">
+      <h3>Game 3</h3>
+      <p>Deskripsi singkat tentang Game 3.</p>
+      <div class="countdown" id="countdown3"></div>
+    </div>
+  </div>
+</div>
+  <!-- Footer Menu dengan Ikon -->
+  <footer>
+    <div class="footer-menu">
+      <a href="beranda.html">
+        <i class="bi bi-house-door"></i>
+        <span>Beranda</span>
+      </a>
+      <a href="saldo.html">
+        <i class="bi bi-wallet"></i>
+        <span>Saldo</span>
+      </a>
+      <a href="main.html" class="disabled-link">
+        <i class="bi bi-controller"></i>
+        <span>Main</span>
+      </a>
+      <a href="akun.html">
+        <i class="bi bi-person"></i>
+        <span>Akun</span>
+      </a>
+    </div>
+  </footer>
+
+  <!-- Firebase App (the core Firebase SDK) -->
+  <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-firestore.js"></script>
+
+  <script>
+    // Inisialisasi Firebase
+    var firebaseConfig = {
+      apiKey: "AIzaSyC6q-jTNQxXOPCaZczcpgRk4q8ftQ0-n3c",
+      authDomain: "internet-14942.firebaseapp.com",
+      projectId: "internet-14942",
+      storageBucket: "internet-14942.appspot.com",
+      messagingSenderId: "214259914034",
+      appId: "1:214259914034:web:de404cf9ee7b35b41b732b",
+      measurementId: "G-BX35S5MZJY"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+  // Inisialisasi Firestore
+    var db = firebase.firestore();
+    
+    // Cek login
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (!user) {
+        // Redirect ke login jika belum login
+        window.location.href = 'index.html';
+      } else {
+        // Ambil saldo pengguna dari Firestore
+        db.collection("users").doc(user.uid).get().then(function(doc) {
+          if (doc.exists) {
+            var saldo = doc.data().saldo; // Asumsi saldo disimpan dengan nama 'saldo'
+            console.log("Saldo pengguna: ", saldo);
+            // Tampilkan saldo di UI jika perlu
+            document.getElementById('saldoDisplay').innerText = "Saldo Anda: " + saldo;
+          } else {
+            console.log("Dokumen tidak ditemukan!");
+          }
+        }).catch(function(error) {
+          console.log("Error getting document:", error);
+        });
+      }
+    });
+
+    // Menginisialisasi waktu countdown untuk setiap grid
+    var countdowns = {
+      game1: { id: 'countdown1', timeLeft: 30 }, // Detik
+      game2: { id: 'countdown2', timeLeft: 60 },
+      game3: { id: 'countdown3', timeLeft: 90 }
+    };
+
+    
+function setupCountdown(gridId, duration) {
+  var endTime = localStorage.getItem(gridId + 'EndTime');
+  var timeExpired = localStorage.getItem(gridId + 'Expired');
+
+  if (timeExpired === 'true') {
+    document.getElementById(gridId).classList.remove("disabled");
+    document.getElementById(countdowns[gridId].id).innerHTML = "<i class='fas fa-play'></i> Main"; // Tambahkan ikon play
+    return;
+  }
+
+  if (!endTime) {
+    endTime = new Date().getTime() + duration * 1000; // Set countdown duration
+    localStorage.setItem(gridId + 'EndTime', endTime);
+  }
+
+  document.getElementById(gridId).classList.add("disabled");
+  initializeCountdown(gridId, endTime);
+}
+
+function initializeCountdown(gridId, endTime) {
+  var countdownElement = document.getElementById(countdowns[gridId].id);
+  var interval = setInterval(function() {
+    var now = new Date().getTime();
+    var distance = endTime - now;
+
+    if (distance < 0) {
+      clearInterval(interval);
+      countdownElement.innerHTML = "<i class='fas fa-play'></i> Main"; // Tambahkan ikon play saat waktu habis
+      localStorage.setItem(gridId + 'Expired', 'true'); // Simpan status waktu habis
+      document.getElementById(gridId).classList.remove("disabled");
+    } else {
+      var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+      countdownElement.innerHTML = minutes + "m " + seconds + "s ";
+    }
+  }, 1000);
+}
+// Set countdowns on page load
+setupCountdown('game1', countdowns.game1.timeLeft);
+setupCountdown('game2', countdowns.game2.timeLeft);
+setupCountdown('game3', countdowns.game3.timeLeft);
+  </script>
+
+</body>
+</html>

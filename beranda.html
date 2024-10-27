@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beranda</title>
+  
+  <!-- Bootstrap CSS -->
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- Bootstrap Icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.8.1/font/bootstrap-icons.min.css" rel="stylesheet">
+
+  <!-- Custom CSS -->
+  <style>
+    body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #e0e0e0; /* Softer background */
+    margin: 0; /* Remove default margin */
+}
+
+/* Navbar Styles */
+.navbar {
+    background-color: #ffcc00; /* Bright yellow background */
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2); /* Shadow for depth */
+}
+
+.navbar-brand {
+    color: #ff0000 !important; /* Bright red text */
+    font-size: 24px; /* Larger font size */
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); /* Soft text shadow */
+}
+
+.navbar-nav .nav-link {
+    color: #333 !important; /* Darker link color for contrast */
+    font-size: 18px; /* Larger font size */
+    padding: 10px 15px; /* Increased padding for links */
+    transition: background-color 0.3s, color 0.3s; /* Smooth transition */
+}
+
+.navbar-nav .nav-link:hover {
+    background-color: #ff9900; /* Darker orange on hover */
+    color: #fff; /* White text on hover */
+    border-radius: 5px; /* Rounded corners on hover */
+}
+
+/* Container Styles */
+.container {
+    margin-top: 20px;
+    padding: 20px; /* Add some padding */
+}
+
+/* Footer Styles */
+footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background-color: #ffcc00; /* Bright yellow footer */
+    color: #333; /* Dark text color */
+    text-align: center;
+    padding: 15px 0; /* Increased padding */
+    box-shadow: 0 -5px 10px rgba(0, 0, 0, 0.2); /* Shadow for depth */
+}
+
+.footer-menu {
+    display: flex;
+    justify-content: space-around;
+}
+
+.footer-menu a {
+    color: #333; /* Dark text color for links */
+    text-decoration: none;
+    font-size: 18px; /* Font size */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: color 0.3s; /* Smooth color transition */
+}
+
+.footer-menu a:hover {
+    color: #ff0000; /* Bright red on hover */
+}
+
+.footer-menu i {
+    font-size: 28px; /* Larger icon size */
+    transition: transform 0.3s; /* Add transform for hover effect */
+}
+
+.footer-menu a:hover i {
+    transform: scale(1.9); /* Scale up on hover */
+}
+
+
+
+    /* Tambahan untuk membuat link tidak aktif dan warna hitam */
+    .disabled-link {
+        color: red !important; /* Warna hitam */
+        pointer-events: none; /* Nonaktifkan klik */
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg">
+    <a class="navbar-brand" href="#">Beranda</a>
+    <div class="collapse navbar-collapse">
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="akun.html">Akun</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="saldo.html">Saldo</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Konten Utama -->
+  <div class="container">
+    <h1 class="text-center">Selamat Datang di Beranda</h1>
+    <p class="text-center">Ini adalah halaman beranda utama Anda setelah login.</p>
+  </div>
+
+  <!-- Footer Menu dengan Ikon -->
+  <footer>
+    <div class="footer-menu">
+      <a href="beranda.html"  class="disabled-link">
+        <i class="bi bi-house-door"></i>
+        <span>Beranda</span>
+      </a>
+      <a href="saldo.html">
+        <i class="bi bi-wallet"></i>
+        <span>Saldo</span>
+      </a>
+      <a href="main.html">
+        <i class="bi bi-controller"></i>
+        <span>Main</span>
+      </a>
+      <a href="akun.html">
+        <i class="bi bi-person"></i>
+        <span>Akun</span>
+      </a>
+    </div>
+  </footer>
+
+  <!-- Firebase App (the core Firebase SDK) -->
+  <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-auth.js"></script>
+
+  <script>
+    // Inisialisasi Firebase
+    var firebaseConfig = {
+      apiKey: "AIzaSyC6q-jTNQxXOPCaZczcpgRk4q8ftQ0-n3c",
+      authDomain: "internet-14942.firebaseapp.com",
+      projectId: "internet-14942",
+      storageBucket: "internet-14942.appspot.com",
+      messagingSenderId: "214259914034",
+      appId: "1:214259914034:web:de404cf9ee7b35b41b732b",
+      measurementId: "G-BX35S5MZJY"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    // Cek login
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (!user) {
+        // Redirect ke login jika belum login
+        window.location.href = 'index.html';
+      }
+    });
+  </script>
+
+</body>
+</html>
